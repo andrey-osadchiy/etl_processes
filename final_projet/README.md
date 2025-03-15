@@ -22,6 +22,10 @@
 
 ### 🔹 1. Клонируем репозиторий
 
+```bash
+git clone https://github.com/andrey-osadchiy/etl_processes.git
+```
+
 
 ### 🔹 2. Запускаем сервисы через Docker
 
@@ -39,11 +43,14 @@ docker-compose up -d
 
 ## 📌 Подготовка баз данных
 
-### 🔹 1. Подключаемся к PostgreSQL и создаём таблицы
+### 🔹 1. Подключаемся к PostgreSQL 
 
 ```bash
 docker exec -it postgres psql -U airflow -d airflow -f /sql/create_tables.sql
 ```
+### 🔹 1.1 Cоздаём таблицы
+
+![создание таблиц](https://raw.githubusercontent.com/andrey-osadchiy/etl_processes/main/final_projet/img/Снимок%20экрана%202025-03-15%20в%2018.16.20.png)
 
 ### 🔹 2. Генерируем тестовые данные в MongoDB
 
@@ -70,6 +77,8 @@ db.marks.insertMany([
     { _id: "m3", student_id: "Hermione Granger", subject_id: "Charms", mark: 4 }
 ]);
 ```
+![создание таблиц и их наполнение](https://raw.githubusercontent.com/andrey-osadchiy/etl_processes/main/final_projet/img/Снимок%20экрана%202025-03-15%20в%2018.19.41.png)
+
 
 ---
 
@@ -80,6 +89,9 @@ db.marks.insertMany([
 1. Переходим в [http://localhost:8080](http://localhost:8080)
 2. Включаем DAG `etl_marks`
 3. Жмакаем **Trigger DAG** для запуска
+4. Смотрим, что всё ок
+  
+![эйрфлоу](https://raw.githubusercontent.com/andrey-osadchiy/etl_processes/main/final_projet/img/Снимок%20экрана%202025-03-15%20в%2019.44.14.png)
 
 ### 🔹 2. Проверяем данные в PostgreSQL
 
