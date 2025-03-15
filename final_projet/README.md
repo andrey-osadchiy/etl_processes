@@ -48,7 +48,7 @@ docker-compose up -d
 ```bash
 docker exec -it postgres psql -U airflow -d airflow -f /sql/create_tables.sql
 ```
-### 🔹 1.1 Cоздаём таблицы
+### 🔹 1.1 Cоздаём таблицы либо через файл create_tables либо руками в базе
 
 ![создание таблиц](https://raw.githubusercontent.com/andrey-osadchiy/etl_processes/main/final_projet/img/Снимок%20экрана%202025-03-15%20в%2018.16.20.png)
 
