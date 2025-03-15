@@ -100,6 +100,7 @@ SELECT * FROM marks;
 ```
 
 Если всё прошло успешно, таблица `marks` должна содержать записи! 🎉
+![таблица marks](https://raw.githubusercontent.com/andrey-osadchiy/etl_processes/main/final_projet/img/Снимок%20экрана%202025-03-15%20в%2022.26.23.png)
 
 ---
 
