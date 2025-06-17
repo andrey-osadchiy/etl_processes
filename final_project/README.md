@@ -110,6 +110,7 @@ if __name__ == "__main__":
     sys.exit(main())
 ```
 ![Скриншот](screenshots/2/5.png)
+Файлы можно посмотреть [тут](https://github.com/andrey-osadchiy/etl_processes/tree/main/final_project/staff)
 
 Далее подключаемся к airflow по ранее нами созданным реквизитам
 ![Скриншот](screenshots/2/6.png)
