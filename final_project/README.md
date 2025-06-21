@@ -142,3 +142,100 @@ if __name__ == "__main__":
 3) отправляем в Kafka-топик family-topic
 4) Kafka Consumer слушает топик family-topic и для каждого сообщения парсит JSON и вставляет данные в YDB через UPSERT
 5) по итогу данные появляются в таблице YDB family_members
+
+Создаём таблицу в YDB кудп будет писаться информация
+
+
+Создаём бакет со всеми файлами. тот который будет обрабатываться, а также 
+kafka-write.py - забирает данные из CSV (Object Storage) и отправляет их в Kafka.
+```python
+import time
+import random
+import json
+from kafka import KafkaProducer
+import csv
+
+# Настройка Kafka Producer
+producer = KafkaProducer(
+    bootstrap_servers='rc1a-sp0t812fps48sn74.mdb.yandexcloud.net:9091',
+    security_protocol='SASL_SSL',
+    sasl_mechanism='SCRAM-SHA-512',
+    sasl_plain_username='user1',
+    sasl_plain_password='password1',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
+
+# Чтение данных из CSV 
+with open('gs://examen/kafka/family.csv', 'r') as file:
+    reader = csv.reader(file)
+    data = list(reader)  # Загружаем все строки
+
+# Отправка данных в Kafka (по 1 записи в секунду)
+while True:
+    row = random.choice(data)  # Берём случайную строку
+    id, birth_date, name_json, is_male = row
+    message = {
+        "id": id,
+        "birth_date": birth_date,
+        "first_name": json.loads(name_json)["first_name"],
+        "is_male": is_male.lower() == "true"
+    }
+    producer.send('family-topic', value=message)
+    print(f"Отправлено: {message}")
+    time.sleep(1)  # Пауза 1 секунда
+```
+и kafka-read-ydb.py — читает данные из Kafka и сохраняет в YDB
+
+```python
+import json
+from kafka import KafkaConsumer
+import ydb
+import os
+from datetime import datetime
+
+# Настройки YDB
+driver_config = ydb.DriverConfig(
+    endpoint="grpcs://ydb.serverless.yandexcloud.net:2135",
+    database="/ru-central1/b1ga28ro2ctk606jpmoh/etnusig6loit8ui9gkmb",
+    credentials=ydb.construct_credentials_from_environ(),  # Авторизация через IAM
+)
+
+# Настройки Kafka
+consumer = KafkaConsumer(
+    'family-topic',
+    bootstrap_servers='ydb-03.serverless.yandexcloud.net:9093',
+    security_protocol='SASL_SSL',
+    sasl_mechanism='SCRAM-SHA-512',
+    sasl_plain_username='user1',  # Замените на реальные
+    sasl_plain_password='password1',
+    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+)
+
+# Подключение к YDB
+driver = ydb.Driver(driver_config)
+driver.wait(fail_fast=True, timeout=5)
+session = driver.table_client.session().create()
+
+def upsert_family_member(data):
+    query = f"""
+    UPSERT INTO `family_members` (id, birth_date, first_name, is_male)
+    VALUES (
+        {data['id']},
+        CAST('{data['birth_date']}' AS Timestamp),
+        '{data['first_name']}',
+        {data['is_male']}
+    )
+    """
+    session.transaction().execute(query, commit_tx=True)
+
+print("Ожидание данных из Kafka...")
+for message in consumer:
+    data = message.value
+    print(f"Получено: {data}")
+    upsert_family_member(data)
+```
+![Скриншот](screenshots/3/3.png)
+
+Последним шагом создаём задание и запсукаем его
+
+![Скриншот](screenshots/3/4.png)
