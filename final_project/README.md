@@ -237,5 +237,9 @@ for message in consumer:
 ![Скриншот](screenshots/3/3.png)
 
 Последним шагом создаём задание и запсукаем его
-
 ![Скриншот](screenshots/3/4.png)
+
+
+Удаляем кластеры
+![Скриншот](screenshots/3/5.png)
+![Скриншот](screenshots/3/6.png)
