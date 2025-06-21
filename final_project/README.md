@@ -206,7 +206,7 @@ consumer = KafkaConsumer(
     bootstrap_servers='ydb-03.serverless.yandexcloud.net:9093',
     security_protocol='SASL_SSL',
     sasl_mechanism='SCRAM-SHA-512',
-    sasl_plain_username='user1',  # Замените на реальные
+    sasl_plain_username='user1',  
     sasl_plain_password='password1',
     value_deserializer=lambda x: json.loads(x.decode('utf-8'))
 )
